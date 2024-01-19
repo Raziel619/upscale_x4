@@ -1,0 +1,25 @@
+
+
+[build-system]
+requires = ["setuptools>=61.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "upscale_x4"
+version = "0.0.3"
+description = "Upscale images or gifs by 4"
+readme = "README.md"
+authors = [{ name = "Raziel619", email = "raziel619dev@gmail.com" }]
+license = { file = "LICENSE" }
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+]
+keywords = ["AI", "upscale"]
+dependencies = ["imageio", "numpy", "opencv-contrib-python", "pillow"]
+requires-python = ">=3.9"
+
+
+[project.urls]
+Homepage = "https://github.com/Raziel619/upscale_x4"
