@@ -14,13 +14,13 @@ def is_gif(filename: str) -> bool:
     return filename.lower().endswith((".gif"))
 
 
-def upscale_gif_x4(input_filename: str, height_check: int = 2000) -> str:
+def upscale_gif_x4(input_filename: str, side_check: int = 2000) -> str:
     """
     Upscales a gif by 4. Output file is saved in same directory as input.
 
     Parameters:
         input_filename (str): The input file to be upscaled
-        height_check (int, optional): Throws an error if input file's height is greater than this. Default is 2000
+        side_check (int, optional): Throws an error if input file's height or width is greater than this. Default is 2000
 
     Returns:
         str: Output filename
@@ -42,12 +42,13 @@ def upscale_gif_x4(input_filename: str, height_check: int = 2000) -> str:
     image_lst = []
     ret, frame = cap.read()
 
-    # height check
+    # side check
     height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
-    if height > height_check:
+    width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
+    if height > side_check or width > side_check:
         cap.release()
         raise Exception(
-            f"{input_filename} is too large to upscale. (Height check set to {height_check})"
+            f"{input_filename} is too large to upscale. (Side check set to {side_check})"
         )
 
     # upscale each frame
@@ -66,13 +67,13 @@ def upscale_gif_x4(input_filename: str, height_check: int = 2000) -> str:
     return output_filename
 
 
-def upscale_image_x4(input_filename: str, height_check: int = 3000) -> str:
+def upscale_image_x4(input_filename: str, side_check: int = 3000) -> str:
     """
     Upscales an image by 4. Output file is saved in same directory as input
 
     Parameters:
         input_filename (str): The input file to be upscaled
-        height_check (int, optional): Throws an error if input file's height is greater than this. Default is 3000
+        side_check (int, optional): Throws an error if input file's height/width is greater than this. Default is 3000
 
     Returns:
         str: Output filename
@@ -96,11 +97,10 @@ def upscale_image_x4(input_filename: str, height_check: int = 3000) -> str:
     # read image
     opencv_image = cv2.imread(input_filename)
 
-    # height check
-    height = opencv_image.shape[0]
-    if height > height_check:
+    # side check
+    if opencv_image.shape[0] > side_check or opencv_image.shape[1] > side_check:
         raise Exception(
-            f"{input_filename} is too large to upscale. (Height check set to {height_check})"
+            f"{input_filename} is too large to upscale. (Side check set to {side_check})"
         )
 
     # upscale image and return output filename
