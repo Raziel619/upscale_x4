@@ -5,6 +5,10 @@ import cv2
 import imageio
 from cv2 import dnn_superres
 
+X2_SIDE_CHECK = 5500
+X4_SIDE_CHECK = 3000
+X8_SIDE_CHECK = 1500
+
 
 def is_jpg(filename: str) -> bool:
     return filename.lower().endswith((".jpg", ".jpeg"))
@@ -12,6 +16,9 @@ def is_jpg(filename: str) -> bool:
 
 def is_gif(filename: str) -> bool:
     return filename.lower().endswith((".gif"))
+
+
+# region GIF Methods
 
 
 def upscale_gif_x4(input_filename: str, side_check: int = 2000) -> str:
@@ -67,7 +74,12 @@ def upscale_gif_x4(input_filename: str, side_check: int = 2000) -> str:
     return output_filename
 
 
-def upscale_image_x2(input_filename: str, side_check: int = 5000) -> str:
+# endregion
+
+# region Image Methods
+
+
+def upscale_image_x2(input_filename: str, side_check: int = X2_SIDE_CHECK) -> str:
     """
     Upscales an image by 2. Output file is saved in same directory as input
 
@@ -110,7 +122,7 @@ def upscale_image_x2(input_filename: str, side_check: int = 5000) -> str:
     return output_filename
 
 
-def upscale_image_x4(input_filename: str, side_check: int = 3000) -> str:
+def upscale_image_x4(input_filename: str, side_check: int = X4_SIDE_CHECK) -> str:
     """
     Upscales an image by 4. Output file is saved in same directory as input
 
@@ -153,7 +165,7 @@ def upscale_image_x4(input_filename: str, side_check: int = 3000) -> str:
     return output_filename
 
 
-def upscale_image_x8(input_filename: str, side_check: int = 1500) -> str:
+def upscale_image_x8(input_filename: str, side_check: int = X8_SIDE_CHECK) -> str:
     """
     Upscales an image by 8 (using 2x followed by 4x). Output file is saved in same directory as input
 
@@ -207,3 +219,32 @@ def upscale_image_x8(input_filename: str, side_check: int = 1500) -> str:
     cv2.imwrite(output_filename, upscaled_image_x8)
     print(f"Upscaled image - {output_filename}")
     return output_filename
+
+
+def upscale_image_to_8k(input_filename: str):
+    """
+    Upscales an image by 8k by determining what scale factor to use. Output file is saved in same directory as input
+
+    Parameters:
+        input_filename (str): The input file to be upscaled
+
+    Returns:
+        str: Output filename
+    """
+
+    # Determine shorter image side
+    image = cv2.imread(input_filename)
+    larger_side = image.shape[0] if image.shape[0] > image.shape[1] else image.shape[1]
+    del image
+
+    if larger_side < X8_SIDE_CHECK:
+        return upscale_image_x8(input_filename)
+    elif larger_side < X4_SIDE_CHECK:
+        return upscale_gif_x4(input_filename)
+    elif larger_side < X2_SIDE_CHECK:
+        return upscale_image_x2(input_filename)
+    else:
+        raise Exception(f"{input_filename} is too large to upscale.")
+
+
+# endregion
