@@ -67,6 +67,49 @@ def upscale_gif_x4(input_filename: str, side_check: int = 2000) -> str:
     return output_filename
 
 
+def upscale_image_x2(input_filename: str, side_check: int = 5000) -> str:
+    """
+    Upscales an image by 2. Output file is saved in same directory as input
+
+    Parameters:
+        input_filename (str): The input file to be upscaled
+        side_check (int, optional): Throws an error if input file's height/width is greater than this. Default is 5000
+
+    Returns:
+        str: Output filename
+    """
+
+    # throw warning if file is not jpg
+    if not is_jpg(input_filename):
+        warn(
+            f"upscale_image_x2 - {input_filename} is not jpg, upscaler may give poor results or fail",
+            stacklevel=3,
+        )
+
+    # read image
+    opencv_image = cv2.imread(input_filename)
+
+    # side check
+    if opencv_image.shape[0] > side_check or opencv_image.shape[1] > side_check:
+        raise Exception(
+            f"{input_filename} is too large to upscale. (Side check set to {side_check})"
+        )
+
+    # load model
+    model_path = os.path.join(os.path.dirname(__file__), "models", "FSRCNN_x2.pb")
+    sr = dnn_superres.DnnSuperResImpl_create()
+    sr.readModel(model_path)
+    sr.setModel("fsrcnn", 2)
+    _, file_extension = os.path.splitext(input_filename)
+    output_filename = f"{input_filename[:-4]}_u{file_extension}"
+
+    # upscale image and return output filename
+    upscaled_image = sr.upsample(opencv_image)
+    cv2.imwrite(output_filename, upscaled_image)
+    print(f"Upscaled image - {output_filename}")
+    return output_filename
+
+
 def upscale_image_x4(input_filename: str, side_check: int = 3000) -> str:
     """
     Upscales an image by 4. Output file is saved in same directory as input
@@ -125,7 +168,7 @@ def upscale_image_x8(input_filename: str, side_check: int = 1500) -> str:
     # throw warning if file is not jpg
     if not is_jpg(input_filename):
         warn(
-            f"upscale_image_x4 - {input_filename} is not jpg, upscaler may give poor results or fail",
+            f"upscale_image_x8 - {input_filename} is not jpg, upscaler may give poor results or fail",
             stacklevel=3,
         )
 
